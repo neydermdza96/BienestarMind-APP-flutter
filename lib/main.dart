@@ -44,22 +44,46 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _login() {
-    String email = _emailController.text;
-    String password = _passwordController.text;
+  bool _obscurePassword = true;
+  bool _isLoading = false;
 
-    if (email.contains('@sena.edu.co') && password.length >= 4) {
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _login() async {
+    // valida el formulario primero
+    final isValid = _formKey.currentState?.validate() ?? false;
+    if (!isValid) return;
+
+    setState(() => _isLoading = true);
+
+    // simulamos una llamada (API) para que el loader tenga sentido
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    setState(() => _isLoading = false);
+
+    if (email.endsWith('@sena.edu.co') && password.length >= 4) {
+      if (!mounted) return;
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              const DashboardScreen(userName: "Aprendiz Sena"),
+          builder: (context) => const DashboardScreen(userName: "Aprendiz Sena"),
         ),
       );
     } else {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Credenciales inválidas. Intenta de nuevo.'),
@@ -78,67 +102,99 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(32.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            // IMAGEN: Usando Image.asset (Placeholder)
-            Image.asset(
-              'assets/LOGO_BIENESTARMIND.png',
-              height: 120,
-              errorBuilder: (context, error, stackTrace) {
-                // Muestra un placeholder si la imagen no se encuentra
-                return const Icon(
-                  Icons.psychology,
-                  size: 80,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Image.asset(
+                'assets/LOGO_BIENESTARMIND.png',
+                height: 120,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(
+                    Icons.psychology,
+                    size: 80,
+                    color: Color(0xFF1F9C18),
+                  );
+                },
+              ),
+              const SizedBox(height: 30),
+
+              const Text(
+                "BienestarMind",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
                   color: Color(0xFF1F9C18),
-                );
-              },
-            ),
-            const SizedBox(height: 30),
-
-            const Text(
-              "BienestarMind",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1F9C18),
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 30),
+              const SizedBox(height: 30),
 
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Correo SENA',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.person),
+              TextFormField(
+                controller: _emailController,
+                decoration: const InputDecoration(
+                  labelText: 'Correo SENA',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.person),
+                ),
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
+                validator: (value) {
+                  final v = (value ?? '').trim();
+                  if (v.isEmpty) return 'Ingresa tu correo institucional';
+                  if (!v.contains('@')) return 'Formato de correo no válido';
+                  if (!v.endsWith('@sena.edu.co')) return 'Debe ser @sena.edu.co';
+                  return null;
+                },
               ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 15),
+              const SizedBox(height: 15),
 
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Contraseña',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.lock),
+              TextFormField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  labelText: 'Contraseña',
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.lock),
+                  suffixIcon: IconButton(
+                    tooltip: _obscurePassword ? 'Mostrar' : 'Ocultar',
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() => _obscurePassword = !_obscurePassword);
+                    },
+                  ),
+                ),
+                obscureText: _obscurePassword,
+                textInputAction: TextInputAction.done,
+                onFieldSubmitted: (_) => _login(),
+                validator: (value) {
+                  final v = value ?? '';
+                  if (v.isEmpty) return 'Ingresa tu contraseña';
+                  if (v.length < 4) return 'Mínimo 4 caracteres';
+                  return null;
+                },
               ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 30),
+              const SizedBox(height: 30),
 
-            ElevatedButton(
-              onPressed: _login,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1F9C18),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 15),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _login,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1F9C18),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('INGRESAR'),
               ),
-              child: const Text('INGRESAR'),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

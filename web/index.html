@@ -1,38 +1,183 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
   -->
   <base href="$FLUTTER_BASE_HREF">
 
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta charset="UTF-8" />
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="flutter_application_1">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <!-- SEO básico -->
+  <title>flutter_application_1</title>
+  <meta name="description" content="App construida con Flutter Web." />
+
+  <!-- PWA / Mobile -->
+  <meta name="theme-color" content="#1A73E8" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="flutter_application_1" />
+  <link rel="apple-touch-icon" href="icons/Icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="favicon.png" />
 
-  <title>flutter_application_1</title>
-  <link rel="manifest" href="manifest.json">
+  <!-- Open Graph (previsualización en WhatsApp/FB/LinkedIn) -->
+  <meta property="og:title" content="flutter_application_1" />
+  <meta property="og:description" content="App construida con Flutter Web." />
+  <meta property="og:type" content="website" />
+  <!-- Si tienes una imagen pública, cámbiala aquí -->
+  <!-- <meta property="og:image" content="icons/Icon-512.png" /> -->
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="flutter_application_1" />
+  <meta name="twitter:description" content="App construida con Flutter Web." />
+
+  <!-- Fonts (opcional) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Si no quieres fuentes externas, puedes borrar estas 2 líneas -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root { color-scheme: light; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: #0b1220;
+    }
+
+    /* Pantalla de carga */
+    .splash {
+      height: 100%;
+      display: grid;
+      place-items: center;
+      color: white;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: min(520px, 92vw);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 18px;
+      padding: 22px 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      backdrop-filter: blur(10px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #1A73E8;
+      box-shadow: 0 0 18px rgba(26, 115, 232, .8);
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: .85; }
+      50% { transform: scale(1.35); opacity: 1; }
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 6px 0 0;
+      opacity: .85;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .progress {
+      height: 8px;
+      width: 100%;
+      background: rgba(255,255,255,.12);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+    .bar {
+      height: 100%;
+      width: 35%;
+      background: rgba(26, 115, 232, .9);
+      border-radius: 999px;
+      animation: load 1.2s ease-in-out infinite;
+    }
+    @keyframes load {
+      0% { transform: translateX(-120%); }
+      100% { transform: translateX(320%); }
+    }
+
+    .warn {
+      margin-top: 14px;
+      font-size: 12px;
+      opacity: .8;
+    }
+    .warn strong { opacity: 1; }
+
+    noscript {
+      display: block;
+      padding: 16px;
+      background: #ffefef;
+      color: #6b0000;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+  </style>
 </head>
+
 <body>
+  <noscript>
+    Esta aplicación requiere JavaScript para funcionar. Por favor actívalo y recarga la página.
+  </noscript>
+
+  <!-- Splash mientras Flutter carga -->
+  <div id="splash" class="splash" aria-label="Cargando aplicación">
+    <div class="card">
+      <div class="brand">
+        <span class="dot" aria-hidden="true"></span>
+        <p class="title">Cargando…</p>
+      </div>
+      <p class="subtitle">Estamos iniciando la aplicación. Esto puede tardar unos segundos.</p>
+      <div class="progress" aria-hidden="true"><div class="bar"></div></div>
+      <div id="slowHint" class="warn" style="display:none;">
+        <strong>Nota:</strong> Si tarda mucho, revisa tu conexión o recarga la página.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Si tarda demasiado, mostramos hint
+    setTimeout(() => {
+      const el = document.getElementById('slowHint');
+      if (el) el.style.display = 'block';
+    }, 8000);
+
+    // Flutter suele reemplazar el body, pero por si acaso, removemos splash cuando arranque
+    window.addEventListener('flutter-first-frame', function () {
+      const splash = document.getElementById('splash');
+      if (splash) splash.remove();
+    });
+  </script>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
