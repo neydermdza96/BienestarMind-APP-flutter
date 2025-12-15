@@ -28,9 +28,21 @@ Future<List<Reserva>> fetchPendingReservas() async {
 
 List<Reserva> fetchHistoricalReservas() {
   return [
-    Reserva(id: 10, motivo: 'Reunión de Equipo (Histórico)', fecha: '2025-11-01'),
-    Reserva(id: 11, motivo: 'Taller de Liderazgo (Histórico)', fecha: '2025-11-05'),
-    Reserva(id: 12, motivo: 'Asesoría Nutricional (Histórico)', fecha: '2025-11-10'),
+    Reserva(
+      id: 10,
+      motivo: 'Reunión de Equipo (Histórico)',
+      fecha: '2025-11-01',
+    ),
+    Reserva(
+      id: 11,
+      motivo: 'Taller de Liderazgo (Histórico)',
+      fecha: '2025-11-05',
+    ),
+    Reserva(
+      id: 12,
+      motivo: 'Asesoría Nutricional (Histórico)',
+      fecha: '2025-11-10',
+    ),
   ];
 }
 
@@ -47,16 +59,15 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  
-  List<Reserva> _allReservas = []; 
-  List<Reserva> _filteredReservas = []; 
+  List<Reserva> _allReservas = [];
+  List<Reserva> _filteredReservas = [];
   final TextEditingController _searchController = TextEditingController();
-  
+
   // Estado para el BottomNavigationBar
-  int _selectedIndex = 0; 
+  int _selectedIndex = 0;
   // Estado para el Toggle de Listas (true = Próximas, false = Histórico)
-  bool _showPending = true; 
-  
+  bool _showPending = true;
+
   late Future<List<Reserva>> _reservasFuture;
 
   @override
@@ -73,21 +84,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _filterReservas() {
-    final List<Reserva> sourceList = _showPending 
-        ? _allReservas 
-        : fetchHistoricalReservas(); 
-        
+    final List<Reserva> sourceList = _showPending
+        ? _allReservas
+        : fetchHistoricalReservas();
+
     final query = _searchController.text.toLowerCase();
-    
+
     if (query.isEmpty && _showPending) {
-        setState(() { _filteredReservas = _allReservas; });
-        return;
+      setState(() {
+        _filteredReservas = _allReservas;
+      });
+      return;
     }
-    
+
     if (!_showPending && _allReservas.isEmpty) {
-        _allReservas = sourceList; 
+      _allReservas = sourceList;
     }
-    
+
     final results = sourceList.where((reserva) {
       return reserva.motivo.toLowerCase().contains(query);
     }).toList();
@@ -96,15 +109,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _filteredReservas = results;
     });
   }
-  
+
   void _toggleList(bool showPending) {
     if (_showPending == showPending) return;
 
-    _searchController.clear(); 
+    _searchController.clear();
 
     setState(() {
       _showPending = showPending;
-      
+
       if (!_showPending) {
         _filteredReservas = fetchHistoricalReservas();
       } else {
@@ -112,31 +125,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
     });
   }
-  
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
     // Lógica de navegación (simulada)
-    if (index == 2) { 
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Navegando a Perfil... (simulado)')),
-        );
+    if (index == 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Navegando a Perfil... (simulado)')),
+      );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard BienestarMind'),
-        backgroundColor: Theme.of(context).primaryColor, 
-        foregroundColor: Colors.white, 
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.exit_to_app),
           onPressed: () {
-            Navigator.pop(context); 
+            Navigator.pop(context);
           },
         ),
       ),
@@ -145,21 +157,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('¡Bienvenido, ${widget.userName}!', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+            Text(
+              '¡Bienvenido, ${widget.userName}!',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 20),
-            
+
             // Layouts: Tarjetas
             Row(
               children: <Widget>[
                 // ✅ Tarjeta 1: Verde (OK)
-                Expanded(child: _buildStatCard(context, 'Total Asesorías', '120', Colors.green.shade700)),
+                Expanded(
+                  child: _buildStatCard(
+                    context,
+                    'Total Asesorías',
+                    '120',
+                    Colors.green.shade700,
+                  ),
+                ),
                 const SizedBox(width: 10),
                 // ✅ Tarjeta 2: Tono Neutro (Reemplaza el Azul/Morado)
-                Expanded(child: _buildStatCard(context, 'Espacios Reservados', '45', Colors.black54)),
+                Expanded(
+                  child: _buildStatCard(
+                    context,
+                    'Espacios Reservados',
+                    '45',
+                    Colors.black54,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 30),
-            
+
             // Campo de búsqueda
             Padding(
               padding: const EdgeInsets.only(bottom: 15.0),
@@ -173,8 +202,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     borderSide: BorderSide.none,
                   ),
                   filled: true,
-                  fillColor: Colors.white, 
-                  contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 15,
+                    horizontal: 10,
+                  ),
                 ),
               ),
             ),
@@ -185,20 +217,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 ElevatedButton.icon(
                   onPressed: () => _toggleList(true),
-                  icon: Icon(Icons.pending_actions, color: _showPending ? Colors.white : Theme.of(context).primaryColor),
-                  label: Text('Próximas Reservas', style: TextStyle(color: _showPending ? Colors.white : Colors.black87)),
+                  icon: Icon(
+                    Icons.pending_actions,
+                    color: _showPending
+                        ? Colors.white
+                        : Theme.of(context).primaryColor,
+                  ),
+                  label: Text(
+                    'Próximas Reservas',
+                    style: TextStyle(
+                      color: _showPending ? Colors.white : Colors.black87,
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _showPending ? Theme.of(context).primaryColor : Colors.white,
+                    backgroundColor: _showPending
+                        ? Theme.of(context).primaryColor
+                        : Colors.white,
                     side: BorderSide(color: Theme.of(context).primaryColor),
                     elevation: _showPending ? 5 : 0,
                   ),
                 ),
                 ElevatedButton.icon(
                   onPressed: () => _toggleList(false),
-                  icon: Icon(Icons.history, color: !_showPending ? Colors.white : Theme.of(context).primaryColor),
-                  label: Text('Reservas Históricas', style: TextStyle(color: !_showPending ? Colors.white : Colors.black87)),
+                  icon: Icon(
+                    Icons.history,
+                    color: !_showPending
+                        ? Colors.white
+                        : Theme.of(context).primaryColor,
+                  ),
+                  label: Text(
+                    'Reservas Históricas',
+                    style: TextStyle(
+                      color: !_showPending ? Colors.white : Colors.black87,
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: !_showPending ? Theme.of(context).primaryColor : Colors.white,
+                    backgroundColor: !_showPending
+                        ? Theme.of(context).primaryColor
+                        : Colors.white,
                     side: BorderSide(color: Theme.of(context).primaryColor),
                     elevation: !_showPending ? 5 : 0,
                   ),
@@ -208,16 +264,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 15),
 
             // Future Builder: Carga los datos una vez
-            _showPending && _allReservas.isEmpty 
+            _showPending && _allReservas.isEmpty
                 ? FutureBuilder<List<Reserva>>(
-                    future: _reservasFuture, 
+                    future: _reservasFuture,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
                       } else if (snapshot.hasData) {
                         _allReservas = snapshot.data!;
                         _filteredReservas = _allReservas;
-                        WidgetsBinding.instance.addPostFrameCallback((_) => _filterReservas());
+                        WidgetsBinding.instance.addPostFrameCallback(
+                          (_) => _filterReservas(),
+                        );
                         return _buildReservasList(_filteredReservas);
                       } else {
                         return const Text('No hay reservas próximas.');
@@ -228,57 +286,58 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
-      
+
       // ✅ BOTÓN FLOTANTE
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Botón flotante: Crear nueva reserva (simulado)')),
+            const SnackBar(
+              content: Text('Botón flotante: Crear nueva reserva (simulado)'),
+            ),
           );
         },
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         child: const Icon(Icons.add),
       ),
-      
+
       // ✅ BottomNavigationBar (Tonos Morados/Ámbar reemplazados por Blanco/Verde)
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Dashboard',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Dashboard'),
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_month),
             label: 'Reservas',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Perfil',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
         ],
         currentIndex: _selectedIndex,
         // ✅ Color de fondo de la barra
-        backgroundColor: Theme.of(context).primaryColor, 
+        backgroundColor: Theme.of(context).primaryColor,
         // ✅ Ítem seleccionado en BLANCO (Reemplaza el ámbar/morado)
-        selectedItemColor: Colors.white, 
+        selectedItemColor: Colors.white,
         // ✅ Ítems no seleccionados en un verde más claro
-        unselectedItemColor: Colors.white70, 
+        unselectedItemColor: Colors.white70,
         onTap: _onItemTapped,
       ),
     );
   }
 
   // 5. Container (Propiedades Avanzadas: BoxDecoration y Sombra)
-  Widget _buildStatCard(BuildContext context, String title, String count, Color color) {
+  Widget _buildStatCard(
+    BuildContext context,
+    String title,
+    String count,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15), 
+        borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withAlpha(26),
             spreadRadius: 1,
             blurRadius: 5,
             offset: const Offset(0, 3),
@@ -290,7 +349,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: <Widget>[
           Text(title, style: TextStyle(color: color, fontSize: 14)),
           const SizedBox(height: 8),
-          Text(count, style: TextStyle(color: color, fontSize: 28, fontWeight: FontWeight.bold)),
+          Text(
+            count,
+            style: TextStyle(
+              color: color,
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -302,23 +368,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
       return const Center(
         child: Padding(
           padding: EdgeInsets.only(top: 20.0),
-          child: Text('No se encontraron reservas con ese criterio.', style: TextStyle(fontStyle: FontStyle.italic)),
+          child: Text(
+            'No se encontraron reservas con ese criterio.',
+            style: TextStyle(fontStyle: FontStyle.italic),
+          ),
         ),
       );
     }
-    
-    return SizedBox( 
-      height: 300, 
+
+    return SizedBox(
+      height: 300,
       child: ListView.builder(
         itemCount: reservas.length,
         itemBuilder: (context, index) {
           final reserva = reservas[index];
           return Card(
-            elevation: 3, 
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            elevation: 3,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: ListTile(
-              leading: Icon(Icons.calendar_today, color: Theme.of(context).primaryColor),
-              title: Text(reserva.motivo, style: const TextStyle(fontWeight: FontWeight.w500)),
+              leading: Icon(
+                Icons.calendar_today,
+                color: Theme.of(context).primaryColor,
+              ),
+              title: Text(
+                reserva.motivo,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
               subtitle: Text('Fecha: ${reserva.fecha}'),
               trailing: Text('#${reserva.id}'),
             ),
