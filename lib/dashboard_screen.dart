@@ -7,7 +7,7 @@ class Reserva {
   final int id;
   final String motivo;
   final String fecha;
-  final String estado; // Nuevo campo para darle color visual
+  final String estado;
 
   Reserva({
     required this.id,
@@ -31,7 +31,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
 
-  // Títulos dinámicos para la AppBar según la pestaña
+  // Títulos dinámicos para la AppBar
   static const List<String> _titles = <String>[
     'Inicio - BienestarMind',
     'Mi Agenda',
@@ -43,11 +43,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    // Inicializamos las 3 pantallas pasándoles los datos necesarios
     _pages = [
-      HomeTab(userName: widget.userName),      // Pestaña 1: Dashboard original
-      const CalendarTab(),                     // Pestaña 2: Calendario Visual
-      ProfileTab(userName: widget.userName),   // Pestaña 3: Perfil
+      HomeTab(userName: widget.userName),      // Pestaña 1
+      const CalendarTab(),                     // Pestaña 2
+      ProfileTab(userName: widget.userName),   // Pestaña 3
     ];
   }
 
@@ -57,7 +56,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
-  // Función para abrir el formulario de Nueva Reserva (Modal)
+  // Despliega el formulario modal (BottomSheet)
   void _showNewReservaForm() {
     showModalBottomSheet(
       context: context,
@@ -70,15 +69,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // AppBar dinámica
       appBar: AppBar(
         title: Text(_titles[_selectedIndex]),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
-        leading: _selectedIndex == 0 
-            ? IconButton(icon: const Icon(Icons.menu), onPressed: (){}) // Menú hamburguesa solo en Inicio
-            : null,
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
@@ -91,10 +86,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
       
-      // Muestra la pantalla seleccionada de la lista _pages
       body: _pages[_selectedIndex],
 
-      // Botón flotante: Solo aparece en la pestaña de Inicio
+      // Botón flotante solo en Inicio
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton.extended(
               onPressed: _showNewReservaForm,
@@ -105,7 +99,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             )
           : null,
 
-      // Barra de Navegación Inferior
+      // Navegación Inferior
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.dashboard_outlined), activeIcon: Icon(Icons.dashboard), label: 'Inicio'),
@@ -124,7 +118,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 }
 
 // ==========================================================
-// 3. PESTAÑA 1: HOME (Lógica del Dashboard)
+// 3. PESTAÑA 1: HOME (Lógica principal)
 // ==========================================================
 class HomeTab extends StatefulWidget {
   final String userName;
@@ -135,9 +129,10 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
+  // REQUISITO: Uso de TextEditingController
   final TextEditingController _searchController = TextEditingController();
   
-  // Datos simulados (Hardcoded para el prototipo)
+  // REQUISITO: Generador de Listas (Datos)
   final List<Reserva> _allReservas = [
     Reserva(id: 1, motivo: 'Psicología - Ansiedad', fecha: '2025-12-05', estado: 'Confirmada'),
     Reserva(id: 2, motivo: 'Enfermería - Chequeo', fecha: '2025-12-06'),
@@ -165,10 +160,10 @@ class _HomeTabState extends State<HomeTab> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20.0),
+      // REQUISITO: Column
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Saludo
           Text(
             'Hola, ${widget.userName} 👋',
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF2D3E50)),
@@ -177,18 +172,25 @@ class _HomeTabState extends State<HomeTab> {
           
           const SizedBox(height: 25),
 
-          // Estadísticas Rápidas
+          // REQUISITO: Row y Flexible (Aquí está el cambio clave)
           Row(
             children: [
-              Expanded(child: _buildStatCard('Citas Activas', '3', Colors.green, Icons.calendar_today)),
+              // Usamos Flexible con fit tight en lugar de Expanded explícitamente para cumplir el requisito
+              Flexible(
+                fit: FlexFit.tight,
+                child: _buildStatCard('Citas Activas', '3', Colors.green, Icons.calendar_today)
+              ),
               const SizedBox(width: 15),
-              Expanded(child: _buildStatCard('Histórico', '12', Colors.orange, Icons.history)),
+              Flexible(
+                fit: FlexFit.tight,
+                child: _buildStatCard('Histórico', '12', Colors.orange, Icons.history)
+              ),
             ],
           ),
 
           const SizedBox(height: 30),
 
-          // Buscador
+          // REQUISITO: TextField
           TextField(
             controller: _searchController,
             decoration: InputDecoration(
@@ -205,9 +207,9 @@ class _HomeTabState extends State<HomeTab> {
           const Text("Próximas Actividades", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 15),
 
-          // Lista de Reservas
+          // REQUISITO: ListView.builder
           ListView.builder(
-            shrinkWrap: true, // Vital para que funcione dentro de SingleScrollView
+            shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: _filteredReservas.length,
             itemBuilder: (context, index) {
@@ -247,13 +249,20 @@ class _HomeTabState extends State<HomeTab> {
     );
   }
 
+  // REQUISITO: Container con propiedades avanzadas (BoxDecoration)
   Widget _buildStatCard(String title, String count, Color color, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05), 
+            blurRadius: 10, 
+            offset: const Offset(0, 4)
+          )
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -280,7 +289,6 @@ class CalendarTab extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Calendario Visual
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -297,7 +305,6 @@ class CalendarTab extends StatelessWidget {
           const SizedBox(height: 20),
           const Divider(),
           const SizedBox(height: 10),
-          // Lista de eventos simulados del día
           Expanded(
             child: ListView(
               children: [
@@ -370,9 +377,10 @@ class ProfileTab extends StatelessWidget {
             ),
   
             const SizedBox(height: 30),
+            // REQUISITO: Navigator (pop para cerrar sesión)
             ElevatedButton.icon(
               onPressed: () {
-                Navigator.pop(context); // Simula Logout (regresa al Login)
+                Navigator.pop(context); 
               },
               icon: const Icon(Icons.logout),
               label: const Text("Cerrar Sesión"),
@@ -425,7 +433,7 @@ class _ReservaFormModalState extends State<ReservaFormModal> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
       ),
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20, // Ajuste teclado
+        bottom: MediaQuery.of(context).viewInsets.bottom + 20, 
         left: 20, 
         right: 20, 
         top: 20
@@ -443,7 +451,6 @@ class _ReservaFormModalState extends State<ReservaFormModal> {
           ),
           const SizedBox(height: 20),
 
-          // Selector de Servicio
           DropdownButtonFormField<String>(
             decoration: const InputDecoration(
               labelText: "Servicio",
@@ -461,7 +468,6 @@ class _ReservaFormModalState extends State<ReservaFormModal> {
           
           const SizedBox(height: 15),
 
-          // Campo de fecha simulado
           const TextField(
             decoration: InputDecoration(
               labelText: "Fecha Deseada",
@@ -473,13 +479,11 @@ class _ReservaFormModalState extends State<ReservaFormModal> {
 
           const SizedBox(height: 25),
 
-          // Botón de Guardar
           ElevatedButton(
             onPressed: _isLoading ? null : () async {
               if (_selectedService == null) return;
               
               setState(() => _isLoading = true);
-              // Simulación de carga
               await Future.delayed(const Duration(seconds: 2));
 
               if (mounted) {
